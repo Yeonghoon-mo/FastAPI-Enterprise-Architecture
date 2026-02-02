@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 import uvicorn
-from app.routers import user_router, auth_router, board_router
+from app.routers import user_router, auth_router, board_router, comment_router
 from app.core.database import engine, Base
 from app.core.logger import setup_logger
 
@@ -20,6 +20,7 @@ app = FastAPI(
 app.include_router(auth_router.router)
 app.include_router(user_router.router)
 app.include_router(board_router.router)
+app.include_router(comment_router.router)
 
 @app.get("/")
 def root():

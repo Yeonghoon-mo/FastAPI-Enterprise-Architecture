@@ -3,22 +3,19 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
 
-# [JPA: @Entity]
-class Board(Base):
-    __tablename__ = "boards"
+class Comment(Base):
+    __tablename__ = "comments"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), index=True)
-    content = Column(Text)
+    content = Column(Text, nullable=False)
     
-    # user_id는 users 테이블의 email 컬럼을 참조합니다.
+    # FK 설정
+    board_id = Column(Integer, ForeignKey("boards.id", ondelete="CASCADE"))
     user_id = Column(String(255), ForeignKey("users.email"))
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # [JPA: 양방향 매핑]
-    owner = relationship("User", back_populates="boards")
-    comments = relationship("Comment", back_populates="board", cascade="all, delete-orphan")
-
-    
+    # 관계 설정
+    board = relationship("Board", back_populates="comments")
+    owner = relationship("User", back_populates="comments")

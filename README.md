@@ -129,8 +129,8 @@ app/
 ### Phase 2: Domain Expansion (🚧 In Progress)
 - [x] **Board Domain**: 게시글(Board) CRUD 기능 구현
 - [x] **Relationships**: User(1) : Board(N) 일대다 관계 매핑 및 데이터 무결성 보장
-- [ ] **Board Domain**: 댓글(Comment) 기능 구현
-- [ ] **Relationships**: Board(1) : Comment(N) 관계 매핑
+- [x] **Board Domain**: 댓글(Comment) 기능 구현
+- [x] **Relationships**: Board(1) : Comment(N) 및 User(1) : Comment(N) 관계 매핑
 - [ ] **Pagination**: 대용량 데이터를 위한 페이징 처리
 - [ ] **File Upload**: 프로필 이미지 및 첨부파일 처리
 

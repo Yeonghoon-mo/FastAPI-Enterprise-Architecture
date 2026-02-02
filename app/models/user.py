@@ -20,3 +20,6 @@ class User(Base):
 
     # [JPA: @OneToMany(mappedBy = "owner")]
     boards = relationship("Board", back_populates="owner")
+    comments = relationship("Comment", back_populates="owner")
+
+    
