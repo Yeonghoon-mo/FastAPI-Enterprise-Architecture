@@ -9,7 +9,7 @@ from app.repository import user_repository
 from app.models.user import User
 
 # 토큰을 추출할 엔드포인트 지정 (Swagger의 Authorize 버튼 활성화)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
 # [보안 의존성] 현재 로그인한 유저 가져오기
 def get_current_user(
