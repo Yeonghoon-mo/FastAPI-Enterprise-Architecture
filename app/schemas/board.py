@@ -3,21 +3,21 @@ from datetime import datetime
 from typing import Optional
 
 # Base DTO
-class PostBase(BaseModel):
+class BoardBase(BaseModel):
     title: str
     content: str
 
 # 생성 DTO
-class PostCreate(PostBase):
+class BoardCreate(BoardBase):
     pass
 
 # 수정 DTO
-class PostUpdate(BaseModel):
+class BoardUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
 
 # 응답 DTO
-class PostResponse(PostBase):
+class BoardResponse(BoardBase):
     id: int
     user_id: str
     created_at: datetime

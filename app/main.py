@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 import uvicorn
-from app.routers import user_router, auth_router, post_router
+from app.routers import user_router, auth_router, board_router
 from app.core.database import engine, Base
 from app.core.logger import setup_logger
 
 # 로거 설정 초기화
 logger = setup_logger()
 
-# DB 테이블 자동 생성 (실무에선 보통 Alembic 같은 마이그레이션 툴을 쓰지만, 학습용으론 이게 편해!)
+# DB 테이블 자동 생성
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
@@ -16,10 +16,10 @@ app = FastAPI(
     version="0.0.1"
 )
 
-# 라우터 등록 (Spring의 Component Scan과 비슷한 역할)
+# 라우터 등록
 app.include_router(auth_router.router)
 app.include_router(user_router.router)
-app.include_router(post_router.router)
+app.include_router(board_router.router)
 
 @app.get("/")
 def root():

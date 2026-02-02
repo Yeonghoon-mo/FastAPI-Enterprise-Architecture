@@ -127,10 +127,10 @@ app/
 - [x] 환경변수 관리 및 로깅 시스템 구축
 
 ### Phase 2: Domain Expansion (🚧 In Progress)
-- [x] **Board Domain**: 게시글(Post) CRUD 기능 구현
-- [x] **Relationships**: User(1) : Post(N) 일대다 관계 매핑 및 데이터 무결성 보장
+- [x] **Board Domain**: 게시글(Board) CRUD 기능 구현
+- [x] **Relationships**: User(1) : Board(N) 일대다 관계 매핑 및 데이터 무결성 보장
 - [ ] **Board Domain**: 댓글(Comment) 기능 구현
-- [ ] **Relationships**: Post(1) : Comment(N) 관계 매핑
+- [ ] **Relationships**: Board(1) : Comment(N) 관계 매핑
 - [ ] **Pagination**: 대용량 데이터를 위한 페이징 처리
 - [ ] **File Upload**: 프로필 이미지 및 첨부파일 처리
 

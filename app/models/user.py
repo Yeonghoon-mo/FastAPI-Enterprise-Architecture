@@ -19,4 +19,4 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     # [JPA: @OneToMany(mappedBy = "owner")]
-    posts = relationship("Post", back_populates="owner")
+    boards = relationship("Board", back_populates="owner")
