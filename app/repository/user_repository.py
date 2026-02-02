@@ -1,39 +1,43 @@
+import base64
 from sqlalchemy.orm import Session
 from app.models.user import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 
 # [Spring: @Repository]
-# DB 접근 로직을 담당하는 계층입니다. (Data Access Layer)
 
-# [Java: Optional<User> findById(Long id)]
-# ID로 사용자를 조회합니다.
-def get_user(db: Session, user_id: int):
-    # db.query(User) == SELECT * FROM users
-    # .filter(User.id == user_id) == WHERE id = ?
-    # .first() == limit 1 (없으면 None 반환)
-    return db.query(User).filter(User.id == user_id).first()
-
-# [Java: Optional<User> findByEmail(String email)]
-# 이메일로 사용자를 조회합니다. (중복 가입 체크용)
-def get_user_by_email(db: Session, email: str):
+# PK(Email)로 유저 조회
+def get_user(db: Session, email: str):
     return db.query(User).filter(User.email == email).first()
 
-# [Java: User save(User user)]
-# 사용자를 생성하고 저장합니다.
+# 유저 생성 (Base64 Encoding 적용)
 def create_user(db: Session, user: UserCreate):
-    # TODO: 실제로는 BCryptPasswordEncoder 등을 사용해 비밀번호를 암호화해야 합니다.
-    fake_hashed_password = user.password + "notreallyhashed"
+    # 비밀번호를 Base64로 인코딩 (UTF-8 bytes -> Base64 bytes -> String)
+    encoded_password = base64.b64encode(user.password.encode('utf-8')).decode('utf-8')
     
-    # Entity 생성 (Builder 패턴 대신 생성자 사용)
-    db_user = User(email=user.email, hashed_password=fake_hashed_password)
+    db_user = User(email=user.email, password=encoded_password)
 
-    # 1. 영속성 컨텍스트(Persistence Context)에 추가 (Staging)
     db.add(db_user)
-    
-    # 2. 트랜잭션 커밋 (DB에 SQL 전송)
     db.commit()
-    
-    # 3. DB에서 생성된 데이터(Auto Increment ID 등)를 다시 가져옴
     db.refresh(db_user)
     
     return db_user
+
+# 유저 수정 (Update)
+def update_user(db: Session, db_user: User, user_update: UserUpdate):
+    # 비밀번호 변경 요청이 있다면 Base64 인코딩 후 적용
+    if user_update.password:
+        encoded_password = base64.b64encode(user_update.password.encode('utf-8')).decode('utf-8')
+        db_user.password = encoded_password
+    
+    # 활성 상태 변경 요청이 있다면 적용
+    if user_update.is_active is not None:
+        db_user.is_active = user_update.is_active
+        
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+# 유저 삭제 (Delete)
+def delete_user(db: Session, db_user: User):
+    db.delete(db_user)
+    db.commit()

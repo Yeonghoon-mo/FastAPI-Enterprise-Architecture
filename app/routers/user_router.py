@@ -2,31 +2,31 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.user import UserCreate, User
+from app.schemas.user import UserCreate, User, UserUpdate
 from app.services import user_service
 
-# [Spring: @RestController + @RequestMapping("/users")]
-# API 엔드포인트를 정의하는 컨트롤러입니다.
+# [Spring: @RestController]
 router = APIRouter(
     prefix="/users",
-    tags=["users"],  # Swagger UI에서 'users' 그룹으로 묶여서 보입니다.
+    tags=["users"],
 )
 
-# [Spring: @PostMapping("/")]
-# response_model=User: 반환 타입을 User DTO로 지정 (자동 변환)
+# 회원가입 (POST /users)
 @router.post("/", response_model=User)
-def create_user(
-    user: UserCreate, # [Spring: @RequestBody]
-    db: Session = Depends(get_db) # [Spring: @Autowired / 의존성 주입]
-):
-    # Service 계층 호출
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
     return user_service.create_user(db=db, user=user)
 
-# [Spring: @GetMapping("/{userId}")]
-@router.get("/{user_id}", response_model=User)
-def read_user(
-    user_id: int, # [Spring: @PathVariable]
-    db: Session = Depends(get_db)
-):
-    # Service 계층 호출
-    return user_service.get_user(db=db, user_id=user_id)
+# 회원 조회 (GET /users/{email})
+@router.get("/{email}", response_model=User)
+def read_user(email: str, db: Session = Depends(get_db)):
+    return user_service.get_user(db=db, email=email)
+
+# 회원 수정 (PUT /users/{email})
+@router.put("/{email}", response_model=User)
+def update_user(email: str, user_update: UserUpdate, db: Session = Depends(get_db)):
+    return user_service.update_user(db=db, email=email, user_update=user_update)
+
+# 회원 삭제 (DELETE /users/{email})
+@router.delete("/{email}")
+def delete_user(email: str, db: Session = Depends(get_db)):
+    return user_service.delete_user(db=db, email=email)
