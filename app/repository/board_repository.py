@@ -6,7 +6,10 @@ def get_board(db: Session, board_id: int):
     return db.query(Board).filter(Board.id == board_id).first()
 
 def get_boards(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Board).offset(skip).limit(limit).all()
+    return db.query(Board).order_by(Board.id.desc()).offset(skip).limit(limit).all()
+
+def get_boards_count(db: Session):
+    return db.query(Board).count()
 
 def create_board(db: Session, board: BoardCreate, user_id: str):
     db_board = Board(**board.model_dump(), user_id=user_id)

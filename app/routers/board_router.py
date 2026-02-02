@@ -5,6 +5,7 @@ from typing import List
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse
+from app.schemas.page import PageResponse
 from app.services import board_service
 from app.models.user import User
 
@@ -22,14 +23,14 @@ def create_board(
 ):
     return board_service.create_new_board(db=db, board=board, user_id=current_user.email)
 
-# 목록 조회
-@router.get("/", response_model=List[BoardResponse])
+# 목록 조회 (Pagination 적용)
+@router.get("/", response_model=PageResponse[BoardResponse])
 def read_boards(
-    skip: int = 0, 
-    limit: int = 100, 
+    page: int = 1, 
+    size: int = 10, 
     db: Session = Depends(get_db)
 ):
-    return board_service.get_boards_list(db=db, skip=skip, limit=limit)
+    return board_service.get_boards_list(db=db, page=page, size=size)
 
 # 단건 조회
 @router.get("/{board_id}", response_model=BoardResponse)

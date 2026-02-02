@@ -57,6 +57,8 @@ app/
 - **Clean Code**: Router → Service → Repository 흐름의 명확한 역할 분리.
 - **Data Validation**: Pydantic V2를 활용한 강력한 요청 데이터 검증.
 - **Error Handling**: 명시적인 HTTP Exception 처리.
+- **Cascade Delete**: SQLAlchemy `cascade` 설정을 통한 연관 데이터(댓글) 자동 삭제 관리.
+- **Pagination**: Spring의 `Page` 객체를 벤치마킹한 공통 페이징 응답 구조 구축.
 
 ### ⚙️ 3. Configuration Management
 - **Environment Variables**: `.env` 파일을 통한 민감 정보(DB, Secret Key) 분리.
@@ -131,7 +133,7 @@ app/
 - [x] **Relationships**: User(1) : Board(N) 일대다 관계 매핑 및 데이터 무결성 보장
 - [x] **Board Domain**: 댓글(Comment) 기능 구현
 - [x] **Relationships**: Board(1) : Comment(N) 및 User(1) : Comment(N) 관계 매핑
-- [ ] **Pagination**: 대용량 데이터를 위한 페이징 처리
+- [x] **Pagination**: 대용량 데이터를 위한 페이징 처리 (PageResponse 구현)
 - [ ] **File Upload**: 프로필 이미지 및 첨부파일 처리
 
 ### Phase 3: Advanced Tech
@@ -156,6 +158,7 @@ app/
 | **Dependency Injection** | `@Autowired` / `@Bean` | `Depends()` |
 | **Validation** | Bean Validation (`@NotNull`) | Pydantic Field Types |
 | **Configuration** | `application.yml` | `pydantic-settings` |
+| **Pagination** | `org.springframework.data.domain.Page` | `PageResponse` (Custom) |
 | **Entry Point** | `public static void main` | `if __name__ == "__main__":` |
 
 ---

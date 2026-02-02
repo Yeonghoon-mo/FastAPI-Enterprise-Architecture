@@ -3,11 +3,25 @@ from fastapi import HTTPException
 from app.repository import board_repository
 from app.schemas.board import BoardCreate, BoardUpdate
 
+import math
+from app.schemas.page import PageResponse
+
 def create_new_board(db: Session, board: BoardCreate, user_id: str):
     return board_repository.create_board(db=db, board=board, user_id=user_id)
 
-def get_boards_list(db: Session, skip: int = 0, limit: int = 100):
-    return board_repository.get_boards(db=db, skip=skip, limit=limit)
+def get_boards_list(db: Session, page: int = 1, size: int = 10):
+    skip = (page - 1) * size
+    items = board_repository.get_boards(db=db, skip=skip, limit=size)
+    total_count = board_repository.get_boards_count(db=db)
+    total_pages = math.ceil(total_count / size) if total_count > 0 else 0
+    
+    return PageResponse(
+        items=items,
+        total_count=total_count,
+        page=page,
+        size=size,
+        total_pages=total_pages
+    )
 
 def get_board_detail(db: Session, board_id: int):
     db_board = board_repository.get_board(db, board_id=board_id)
