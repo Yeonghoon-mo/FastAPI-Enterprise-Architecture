@@ -181,8 +181,8 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - [x] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성 완료
 - [x] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축 완료 (Continuous Integration)
 
-### Phase 5: Observability & Monitoring (🚧 Next Step)
-- [ ] **Metrics**: Prometheus & Grafana를 활용한 서버 리소스 및 트래픽 시각화
+### Phase 5: Observability & Monitoring (✅ Completed)
+- [x] **Metrics**: Prometheus & Grafana를 활용한 서버 리소스 및 트래픽 시각화 환경 구축
 - [ ] **Logging Aggregation**: Loki 또는 ELK Stack을 이용한 분산 로그 수집 시스템 구축
 - [ ] **Health Check**: 엔드포인트별 상태 모니터링 및 알림 설정 (Slack/Discord)
 
