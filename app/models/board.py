@@ -8,8 +8,8 @@ class Board(Base):
     __tablename__ = "boards"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(255), index=True)
-    content = Column(Text)
+    title = Column(String(255), index=True, nullable=False)
+    content = Column(Text, nullable=False)
     
     # 첨부 이미지 경로 저장
     image_url = Column(String(500), nullable=True)

@@ -9,11 +9,11 @@ class User(Base):
 
     # [JPA: @Id]
     # 이메일을 PK로 사용합니다.
-    email = Column(String(255), primary_key=True, index=True)
+    email = Column(String(255), primary_key=True, index=True, nullable=False)
 
     # [JPA: @Column]
     # 컬럼명을 hashed_password -> password 로 변경했습니다.
-    password = Column(String(255))
+    password = Column(String(255), nullable=False)
 
     # [JPA: @Column(columnDefinition = "TINYINT(1) default 1")]
     is_active = Column(Boolean, default=True)
