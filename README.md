@@ -292,6 +292,21 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - **Cause**: 응답 DTO(Pydantic)에는 필드가 정의되어 있으나, 실제 DB 모델(SQLAlchemy)에는 해당 컬럼이 없거나 이름이 다름. (예: `id` vs `email`)
 - **Solution**: DB PK 전략(Email PK)에 맞춰 DTO 필드를 조정하고, `model_config = ConfigDict(from_attributes=True)` 설정을 통해 엔티티 변환 정합성 확보.
 
+### 5. GitHub Actions CI Failure (Pytest not found)
+- **Issue**: CI 환경에서 `pytest` 명령어를 찾지 못해 빌드 실패.
+- **Cause**: `pip install` 후 실행 경로(`PATH`) 설정 문제로 인해 전역 명령어로 인식되지 않음.
+- **Solution**: `python -m pytest` 형식을 사용하여 현재 파이썬 환경의 모듈로 실행하도록 워크플로우 수정.
+
+### 6. Docker Tag Case Sensitivity Error (CD)
+- **Issue**: `invalid tag "...": repository name must be lowercase` 발생.
+- **Cause**: GitHub 계정명(`Yeonghoon-mo`)에 대문자가 포함되어 있으나, 도커 이미지 태그는 반드시 소문자여야 함.
+- **Solution**: GitHub Actions 워크플로우에서 계정명을 소문자로 변환하는 전처리 단계(`${OWNER,,}`)를 추가하여 해결.
+
+### 7. GitHub Packages Repository Linking
+- **Issue**: 깃허브 패키지 탭에 이미지는 올라가지만, 소스 코드 레포지토리와 연결되지 않음.
+- **Cause**: Docker 빌드 시 레포지토리 정보를 담은 메타데이터(Label)가 누락됨.
+- **Solution**: Dockerfile 또는 빌드 액션 설정에 `org.opencontainers.image.source` 라벨을 추가하여 레포지토리와 패키지를 명시적으로 연결.
+
 ---
 
 **Mo Yeonghoon**
