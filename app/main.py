@@ -36,7 +36,7 @@ app = FastAPI(
 )
 
 # 정적 파일 서버 설정 (프로필 이미지 등)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory=str(settings.STATIC_DIR)), name="static")
 
 # 라우터 등록
 app.include_router(auth_router.router)
