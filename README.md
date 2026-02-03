@@ -1,4 +1,4 @@
-# 🚀 FastAPI Layered Architecture Boilerplate
+# 🏛️ FastAPI Enterprise Architecture
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -6,8 +6,8 @@
 ![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-2.0-D71F00?style=for-the-badge&logo=sqlalchemy&logoColor=white)
 ![Pydantic](https://img.shields.io/badge/Pydantic-V2-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
 
-> **Spring Boot 개발자를 위한 Python FastAPI 적응 가이드 프로젝트**  
-> "Spring의 견고한 **3-Tier Architecture**를 FastAPI의 **가벼움**과 결합하다."
+> **Spring Boot의 견고한 구조를 이식한 엔터프라이즈급 FastAPI 보일러플레이트**  
+> "Spring의 **3-Tier Architecture**와 FastAPI의 **Asynchronous I/O**가 만나다."
 
 ---
 
