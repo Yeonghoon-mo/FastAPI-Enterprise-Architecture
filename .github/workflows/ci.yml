@@ -52,4 +52,4 @@ jobs:
         SMTP_USER: test@example.com
         SMTP_PASSWORD: testpassword
       run: |
-        pytest
+        python -m pytest
