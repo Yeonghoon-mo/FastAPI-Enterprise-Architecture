@@ -178,7 +178,7 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 
 ### Phase 4: DevOps & Quality (🚧 In Progress)
 - [x] **Docker**: Dockerfile 및 docker-compose 구성 완료 (Infrastructure as Code)
-- [ ] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성
+- [x] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성 완료
 - [ ] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축
 
 ---

@@ -9,6 +9,11 @@ logger = setup_logger()
 
 @celery_app.task
 def send_welcome_email(email_to: str):
+    # 유효하지 않은 도메인 필터링 (testuser@example.com 등)
+    if "@example.com" in email_to or email_to.endswith(".test"):
+        logger.warning(f"⚠️ Skipping email send for invalid domain: {email_to}")
+        return f"Skipped: Invalid domain {email_to}"
+
     logger.info(f"📧 Sending welcome email to {email_to}...")
     
     subject = "Welcome to FastAPI MariaDB App!"
