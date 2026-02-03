@@ -15,24 +15,40 @@ router = APIRouter(
     tags=["boards"],
 )
 
-# 글쓰기 (JSON + Optional Image URL)
+# 글쓰기 (Multipart/form-data)
 @router.post("/", response_model=BoardResponse)
-def create_board(
-    board: BoardCreate, 
-    image_url: Optional[str] = None,
+async def create_board(
+    title: str = Form(...),
+    content: str = Form(...),
+    file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    image_url = None
+    if file:
+        image_url = await FileService.save_file(file, sub_dir="boards")
+        
+    board = BoardCreate(title=title, content=content)
     return board_service.create_new_board(db=db, board=board, user_id=current_user.email, image_url=image_url)
 
-# 첨부파일 업로드
-@router.post("/upload", response_model=dict)
-async def upload_attachment(
-    file: UploadFile = File(...),
+# 수정 (Multipart/form-data)
+@router.put("/{board_id}", response_model=BoardResponse)
+async def update_board(
+    board_id: int,
+    title: Optional[str] = Form(None),
+    content: Optional[str] = Form(None),
+    file: Optional[UploadFile] = File(None),
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    image_url = await FileService.save_file(file, sub_dir="boards")
-    return {"image_url": image_url}
+    image_url = None
+    if file:
+        image_url = await FileService.save_file(file, sub_dir="boards")
+    
+    board_update = BoardUpdate(title=title, content=content)
+    return board_service.update_existing_board(
+        db=db, board_id=board_id, board_update=board_update, user_id=current_user.email, image_url=image_url
+    )
 
 # 목록 조회 (Pagination 적용)
 @router.get("/", response_model=PageResponse[BoardResponse])
@@ -47,18 +63,6 @@ def read_boards(
 @router.get("/{board_id}", response_model=BoardResponse)
 def read_board(board_id: int, db: Session = Depends(get_db)):
     return board_service.get_board_detail(db=db, board_id=board_id)
-
-# 수정
-@router.put("/{board_id}", response_model=BoardResponse)
-def update_board(
-    board_id: int, 
-    board_update: BoardUpdate, 
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    return board_service.update_existing_board(
-        db=db, board_id=board_id, board_update=board_update, user_id=current_user.email
-    )
 
 # 삭제
 @router.delete("/{board_id}")
