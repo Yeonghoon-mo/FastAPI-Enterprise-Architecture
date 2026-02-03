@@ -176,10 +176,10 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - [x] **Caching**: Redis를 활용한 데이터 캐싱 및 세션 관리
 - [x] **Background Tasks**: Celery & Redis를 이용한 비동기 작업 처리 (이메일 발송 등)
 
-### Phase 4: DevOps & Quality (🚧 In Progress)
+### Phase 4: DevOps & Quality (✅ Completed)
 - [x] **Docker**: Dockerfile 및 docker-compose 구성 완료 (Infrastructure as Code)
 - [x] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성 완료
-- [ ] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축
+- [x] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축 완료 (Continuous Integration)
 
 ---
 
