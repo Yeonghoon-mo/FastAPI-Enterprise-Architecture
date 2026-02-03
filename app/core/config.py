@@ -27,9 +27,9 @@ class Settings(BaseSettings):
         return f"mysql+aiomysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     # Redis
-    REDIS_HOST: str = "127.0.0.1"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
 
     # .env 파일 로드 설정 (절대 경로 사용)
     model_config = SettingsConfigDict(
