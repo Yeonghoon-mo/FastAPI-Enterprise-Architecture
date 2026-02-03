@@ -4,7 +4,8 @@ from app.core.config import settings
 celery_app = Celery(
     "worker",
     broker=settings.CELERY_BROKER_URL,
-    backend=settings.CELERY_BROKER_URL
+    backend=settings.CELERY_BROKER_URL,
+    include=["app.tasks.email_task"]
 )
 
 celery_app.conf.update(
