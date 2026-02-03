@@ -12,10 +12,21 @@ async def get_user(db: AsyncSession, email: str):
     result = await db.execute(stmt)
     return result.scalars().first()
 
-# 유저 생성 (BCrypt 적용)
-async def create_user(db: AsyncSession, user: UserCreate):
-    hashed_password = get_password_hash(user.password)
-    db_user = User(email=user.email, password=hashed_password)
+# 유저 생성 (비밀번호가 있는 경우만 BCrypt 적용)
+async def create_user(db: AsyncSession, user: UserCreate | User):
+    if isinstance(user, User):
+        # 이미 User 모델 객체인 경우 (소셜 로그인 등)
+        db_user = user
+        if db_user.password:
+            db_user.password = get_password_hash(db_user.password)
+    else:
+        # UserCreate DTO인 경우 (일반 회원가입 등)
+        hashed_password = get_password_hash(user.password) if user.password else None
+        db_user = User(
+            email=user.email, 
+            password=hashed_password,
+            is_active=True
+        )
 
     db.add(db_user)
     await db.commit()

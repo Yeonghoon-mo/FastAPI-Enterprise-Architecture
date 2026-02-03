@@ -56,10 +56,10 @@ app/
 ## ✨ Key Features
 
 ### 🔐 1. Authentication & Security
-- **JWT (JSON Web Token)** 기반 인증 시스템 구축.
-- **Google OAuth2**: Google 소셜 로그인 연동 및 신규 유저 자동 가입 로직 구현.
-- **BCrypt** 알고리즘을 사용한 비밀번호 단방향 암호화.
-- **HTTPBearer**: Swagger UI에서 토큰을 직접 입력하여 테스트할 수 있는 보안 스키마 적용.
+- **Social Login Only**: 사용자 편의성과 보안을 위해 일반 아이디/비밀번호 방식을 제거하고 소셜 로그인(OAuth2)으로만 인증하도록 설계.
+- **Google & Kakao OAuth2**: Google 및 Kakao 소셜 로그인 연동 및 신규 유저 자동 가입 로직 구현.
+- **JWT (JSON Web Token)**: 소셜 인증 완료 후 서버 자체 JWT를 발급하여 통합 세션 관리.
+- **HTTPBearer**: Swagger UI에서 소셜 토큰을 직접 입력하여 테스트할 수 있는 환경 구축.
 - `Depends(get_current_user)`를 통한 엔드포인트별 권한 제어 (Guard).
 
 ### 🛠 2. Robust CRUD Operations
@@ -184,8 +184,8 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - [x] **Metrics**: Prometheus & Grafana를 활용한 서버 리소스 및 트래픽 시각화 환경 구축
 
 ### Phase 5: Security & User Experience (🚧 In Progress)
-- [ ] **OAuth2**: Google(✅), GitHub, Kakao 등 소셜 로그인 연동
-    - Google 로그인 연동 및 자체 JWT 발급 로직 구현 완료
+- [ ] **OAuth2**: Google(✅), GitHub, Kakao(✅) 등 소셜 로그인 연동
+    - Google 및 Kakao 로그인 연동 및 자체 JWT 발급 로직 구현 완료
 - [ ] **RBAC**: Role-Based Access Control (Admin, User, Guest) 권한 체계 세분화
 - [ ] **SSL/TLS**: Let's Encrypt를 활용한 HTTPS 적용 (Nginx Reverse Proxy)
 
@@ -214,13 +214,20 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 ## 🛠 Technical Deep Dive (Portfolio)
 
 ### 1. Social Login Strategy (OAuth2)
-Google 소셜 로그인을 Spring Boot의 서비스 추상화 패턴을 벤치마킹하여 구현했습니다.
+Google 및 Kakao 소셜 로그인을 Spring Boot의 서비스 추상화 패턴을 벤치마킹하여 구현했습니다.
 
-- **Non-blocking Auth**: `httpx` 비동기 클라이언트를 사용하여 Google API와의 토큰 교환 및 유저 정보 조회를 Non-blocking으로 처리했습니다.
-- **Soft Registration**: 소셜 로그인 시 DB에 유저가 없으면 자동으로 신규 가입(`provider='google'`)을 진행하고, 이미 존재하는 유저라면 소셜 정보를 연동하도록 설계했습니다.
-- **Unified JWT Issue**: 일반 로그인과 소셜 로그인 모두 최종적으로는 서버의 자체 JWT를 발급하도록 하여 프론트엔드에서의 토큰 관리 로직을 통일했습니다.
+- **Multi-Provider Support**: `GoogleAuthService`와 `KakaoAuthService`를 각각 분리 구현하여 확장성을 확보했습니다.
+- **Non-blocking Auth**: `httpx` 비동기 클라이언트를 사용하여 외부 API와의 통신을 Non-blocking으로 처리했습니다.
+- **Soft Registration**: 소셜 로그인 시 DB에 유저가 없으면 자동으로 신규 가입을 진행하고, 이미 존재하는 유저라면 정보를 연동하도록 설계했습니다.
+- **Unified JWT Issue**: 제공자에 관계없이 최종적으로 서버 자체 JWT를 발급하여 토큰 관리 로직을 통일했습니다.
 
-### 2. File Upload Strategy
+### 2. Repository Polymorphism & Safety
+다양한 유저 생성 케이스(일반 가입 DTO vs 소셜 Entity)를 안전하게 처리하기 위해 레포지토리 계층을 고도화했습니다.
+
+- **Type Flexibility**: `create_user` 함수가 `UserCreate` DTO와 `User` 모델 객체를 모두 수용할 수 있도록 다형성을 부여했습니다. (`isinstance` 활용)
+- **Conditional Hashing**: 소셜 유저와 같이 비밀번호가 없는(`None`) 경우를 분기 처리하여, 비밀번호가 존재할 때만 BCrypt 해싱이 수행되도록 방어 로직을 구축하여 런타임 에러를 방지했습니다.
+
+### 3. File Upload Strategy
 이미지 및 파일 업로드를 안전하고 효율적으로 처리하기 위해 다음과 같은 전략을 사용했습니다.
 
 - **UUID Filename**: 사용자가 업로드한 파일명 중복을 방지하고 보안(경로 탐색 공격 방지)을 위해 `UUID v4`를 사용하여 파일명을 난수화했습니다.
@@ -325,6 +332,11 @@ Google 소셜 로그인을 Spring Boot의 서비스 추상화 패턴을 벤치�
 ### 11. Swagger UI Token Input Convenience
 - **Issue**: `OAuth2PasswordBearer` 사용 시 Swagger 상단 'Authorize' 버튼에서 ID/PW를 매번 입력해야 하는 번거로움 발생. 소셜 로그인으로 받은 토큰을 직접 테스트하기 불편함.
 - **Solution**: `HTTPBearer` 보안 스키마로 전환하여 Swagger에서 'Value' 칸 하나만 나타나게 수정, 복사한 JWT를 즉시 붙여넣어 테스트할 수 있는 환경을 구축했습니다.
+
+### 12. TypeError in Social User Registration
+- **Issue**: 소셜 로그인 유저 가입 시 `TypeError: secret must be unicode or bytes, not None` 발생.
+- **Cause**: 레포지토리의 `create_user` 함수가 소셜 유저의 `None` 비밀번호를 강제로 해싱하려 시도함.
+- **Solution**: 레포지토리 로직에 타입 체크 및 조건부 해싱을 도입하여, 비밀번호가 있을 때만 해싱을 수행하고 이미 생성된 모델 객체도 처리 가능하도록 개선하여 해결했습니다.
 
 ---
 
