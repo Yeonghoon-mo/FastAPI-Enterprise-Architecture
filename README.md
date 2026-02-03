@@ -194,9 +194,25 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - **Solution**: Alembic을 통해 Python 모델 코드의 변경 사항을 감지하여 자동으로 마이그레이션 스크립트를 생성(`--autogenerate`)하고, 버전 관리(Versioning)가 가능하도록 구축했습니다.
 - **Workflow**: `Model 수정` -> `alembic revision` -> `alembic upgrade`
 
+### 3. Asynchronous I/O (Async/Await)
+고성능 처리를 위해 데이터베이스 접근 방식을 **동기(Sync)**에서 **비동기(Async)**로 전면 전환했습니다.
+
+- **Driver**: `pymysql` 대신 비동기를 지원하는 `aiomysql` 드라이버를 사용했습니다.
+- **SQLAlchemy 2.0**: `AsyncSession`과 `select()` 구문을 활용하여 Non-blocking DB IO를 구현했습니다.
+- **Benefit**: I/O 대기 시간 동안 다른 요청을 처리할 수 있어, 동시 접속자가 많을 때 스루풋(Throughput)이 대폭 향상됩니다.
+
+### 4. Redis Caching & Session Management
+데이터 조회 성능 최적화와 보안 강화를 위해 **Redis**를 도입했습니다.
+
+- **Look-Aside Caching**: 게시글 목록 조회(`get_boards_list`) 시 Redis 캐시를 먼저 확인하고, 없을 경우 DB에서 조회하여 적재(TTL 60초)하는 전략을 사용했습니다.
+- **Session Control`:
+  - JWT는 Stateless 특성상 강제 로그아웃이 어렵다는 단점이 있습니다.
+  - 이를 보완하기 위해 로그인 시 `Refresh Token`과 유사한 개념으로 Redis에 세션 정보를 저장하고, 요청 시마다 유효성을 검증합니다.
+  - 이를 통해 **중복 로그인 방지** 및 **즉시 로그아웃** 기능을 구현했습니다.
+
 ---
 
-## 👨‍💻 Maintainer
+## 🗺️ Roadmap & Future Plans
 
 **Mo Yeonghoon**
 - Backend Developer (Java/Kotlin, Python)
