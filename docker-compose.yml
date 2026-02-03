@@ -1,0 +1,20 @@
+services:
+  celery_worker:
+    build: .
+    container_name: fastapi_celery_worker
+    # 호스트(내 컴퓨터)의 파일을 컨테이너에 마운트 (코드 수정 시 즉시 반영)
+    volumes:
+      - .:/app
+    # .env 파일 로드 (SMTP 설정 등 공유)
+    env_file:
+      - .env
+    environment:
+      # 컨테이너 내부에서 호스트(내 컴퓨터)의 DB와 Redis에 접근하기 위해 주소 변경
+      - DB_HOST=host.docker.internal
+      - REDIS_HOST=host.docker.internal
+      # SMTP 설정은 .env에서 가져오지만, 명시적으로 적어줄 수도 있음
+    # 리눅스 환경에서도 host.docker.internal을 사용하기 위한 설정
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # 재시작 정책
+    restart: on-failure

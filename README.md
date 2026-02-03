@@ -167,14 +167,14 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - [x] **Pagination**: 대용량 데이터를 위한 페이징 처리 (PageResponse 구현)
 - [x] **File Upload**: 프로필 이미지 및 첨부파일 처리
 
-### Phase 3: Advanced Tech
+### Phase 3: Advanced Tech (✅ Completed)
 - [x] **Async I/O**: `async/await` 및 `aiomysql` 도입으로 완전 비동기 전환
 - [x] **Caching**: Redis를 활용한 데이터 캐싱 및 세션 관리
-- [x] **Background Tasks**: Celery 또는 RabbitMQ를 이용한 비동기 작업 처리 (이메일 발송 등)
+- [x] **Background Tasks**: Celery & Redis를 이용한 비동기 작업 처리 (이메일 발송 등)
 
-### Phase 4: DevOps & Quality
+### Phase 4: DevOps & Quality (🚧 In Progress)
+- [x] **Docker**: Dockerfile 및 docker-compose 구성 완료 (Infrastructure as Code)
 - [ ] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성
-- [ ] **Docker**: Dockerfile 및 docker-compose 구성
 - [ ] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축
 
 ---
@@ -226,6 +226,18 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
   - JWT는 Stateless 특성상 강제 로그아웃이 어렵다는 단점이 있습니다.
   - 이를 보완하기 위해 로그인 시 `Refresh Token`과 유사한 개념으로 Redis에 세션 정보를 저장하고, 요청 시마다 유효성을 검증합니다.
   - 이를 통해 **중복 로그인 방지** 및 **즉시 로그아웃** 기능을 구현했습니다.
+
+### 5. Distributed Task Queue (Celery & Redis)
+응답 속도 개선과 시스템 안정성을 위해 시간이 오래 걸리는 작업은 **Celery**를 통해 비동기로 처리합니다.
+
+- **Non-blocking Email**: 회원가입 환영 메일 발송과 같이 외부 API 연동이 필요한 작업을 백그라운드 태스크로 분리하여 사용자 응답 속도를 극대화했습니다.
+- **Broker & Backend**: 가볍고 빠른 처리를 위해 **Redis**를 메시지 브로커 및 결과 저장소로 활용합니다.
+
+### 6. Containerization (Docker)
+어디서나 동일한 환경에서 실행 가능하도록 **Docker** 환경을 구축했습니다.
+
+- **Multi-container setup**: `docker-compose`를 통해 FastAPI App, MariaDB, Redis, Celery Worker를 하나의 명령어로 통합 관리합니다.
+- **Volume Mounting**: 데이터베이스의 영속성과 로그 기록을 위해 호스트 디렉토리와 컨테이너 내부 디렉토리를 바인딩했습니다.
 
 ---
 
