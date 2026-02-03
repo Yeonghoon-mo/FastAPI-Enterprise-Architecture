@@ -151,7 +151,7 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 - [x] **File Upload**: 프로필 이미지 및 첨부파일 처리
 
 ### Phase 3: Advanced Tech
-- [ ] **Async I/O**: `async/await` 및 `aiomysql` 도입으로 완전 비동기 전환
+- [x] **Async I/O**: `async/await` 및 `aiomysql` 도입으로 완전 비동기 전환
 - [ ] **Caching**: Redis를 활용한 데이터 캐싱 및 세션 관리
 - [ ] **Background Tasks**: Celery 또는 RabbitMQ를 이용한 비동기 작업 처리 (이메일 발송 등)
 
