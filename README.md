@@ -17,7 +17,8 @@
 
 ```mermaid
 graph LR
-    Client(Client) --> |Request| Router(Router/Controller)
+    Client(Client) --> |HTTP/HTTPS| Nginx(Nginx Reverse Proxy)
+    Nginx --> |Request| Router(Router/Controller)
     Router --> |DTO| Service(Service Layer)
     Service --> |Domain Model| Repository(Data Access Layer)
     Repository --> |SQL| DB[(MariaDB)]
@@ -85,8 +86,9 @@ app/
 ### Prerequisites
 - Python 3.10+
 - MariaDB (or MySQL)
+- Docker & Docker Compose
 
-### Installation
+### Installation & Run
 
 1. **Clone the repository**
    ```bash
@@ -94,120 +96,40 @@ app/
    cd FastAPI-Enterprise-Architecture
    ```
 
-2. **Create Virtual Environment**
+2. **Environment Setup (.env)**
+   프로젝트 루트에 `.env` 파일을 생성하고 DB 및 소셜 로그인(Google, Kakao) 정보를 입력하세요.
+
+3. **Run with Docker**
    ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Mac/Linux
-   # .venv\Scripts\activate  # Windows
-   ```
-
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Environment Setup (.env)**
-   프로젝트 루트에 `.env` 파일을 생성하세요.
-   ```ini
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=fastapi_db
-   SECRET_KEY=your_secret_key_openssl_rand_hex_32
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=30
-
-   # Redis
-   REDIS_HOST=127.0.0.1
-   REDIS_PORT=6379
-   REDIS_DB=0
-
-   # SMTP (Email)
-   SMTP_HOST=your_smtp_host
-   SMTP_PORT=587
-   SMTP_USER=your_email@example.com
-   SMTP_PASSWORD=your_email_password
-   SMTP_TLS=True
-   SMTP_SSL=False
-   ```
-
-5. **Run Server**
-   ```bash
-   # 개발 모드 (Auto Reload)
-   uvicorn app.main:app --reload
+   docker-compose up -d --build
    ```
 
 ### DB Migration (Alembic)
 
-DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다.
-
-- **마이그레이션 파일 생성** (모델 변경 후 실행)
-  ```bash
-  alembic revision --autogenerate -m "메시지"
-  ```
-
-- **DB 반영** (최신 버전으로 업데이트)
-  ```bash
-  alembic upgrade head
-  ```
+- **마이그레이션 파일 생성**: `docker exec fastapi_enterprise_api alembic revision --autogenerate -m "메시지"`
+- **DB 반영**: `docker exec fastapi_enterprise_api alembic upgrade head`
 
 ---
 
 ## 🗺️ Roadmap & Future Plans
 
-이 프로젝트는 단순한 CRUD를 넘어, **엔터프라이즈급 백엔드 서버**로 발전하는 것을 목표로 합니다.
+### Phase 1~4: Foundation & DevOps (✅ Completed)
+- [x] Layered Architecture & MariaDB/SQLAlchemy Integration
+- [x] JWT Authentication & Loguru System
+- [x] Board/Comment Domain Expansion & Pagination
+- [x] Async I/O, Redis Caching, Celery Background Tasks
+- [x] Dockerization, Pytest Integration, CI/CD Pipeline (GitHub Actions)
+- [x] Metrics: Prometheus & Grafana Monitoring
 
-### Phase 1: Foundation (✅ Completed)
-- [x] 프로젝트 구조 설계 (Layered Architecture)
-- [x] MariaDB 연동 및 SQLAlchemy 설정
-- [x] User CRUD (회원가입, 조회, 수정, 삭제)
-- [x] JWT 로그인 및 보안 미들웨어 적용
-- [x] 환경변수 관리 및 로깅 시스템 구축
+### Phase 5: Security & User Experience (✅ Completed)
+- [x] **OAuth2**: Google & Kakao 소셜 로그인 연동 및 통합 JWT 발급 완료
+- [x] **RBAC**: Role-Based Access Control (Admin, User, Guest) 권한 체계 구축 완료
+- [x] **Reverse Proxy**: Nginx를 활용한 리버스 프록시 구축 및 로컬 인프라 통합 완료
 
-### Phase 2: Domain Expansion (🚧 In Progress)
-- [x] **Board Domain**: 게시글(Board) CRUD 기능 구현
-- [x] **Relationships**: User(1) : Board(N) 일대다 관계 매핑 및 데이터 무결성 보장
-- [x] **Board Domain**: 댓글(Comment) 기능 구현
-- [x] **Relationships**: Board(1) : Comment(N) 및 User(1) : Comment(N) 관계 매핑
-- [x] **Pagination**: 대용량 데이터를 위한 페이징 처리 (PageResponse 구현)
-- [x] **File Upload**: 프로필 이미지 및 첨부파일 처리
-
-### Phase 3: Advanced Tech (✅ Completed)
-- [x] **Async I/O**: `async/await` 및 `aiomysql` 도입으로 완전 비동기 전환
-- [x] **Caching**: Redis를 활용한 데이터 캐싱 및 세션 관리
-- [x] **Background Tasks**: Celery & Redis를 이용한 비동기 작업 처리 (이메일 발송 등)
-
-### Phase 4: DevOps & Observability (✅ Completed)
-- [x] **Docker**: Dockerfile 및 docker-compose 구성 완료 (Infrastructure as Code)
-- [x] **Testing**: Pytest를 이용한 단위 테스트 및 통합 테스트 작성 완료
-- [x] **CI/CD**: GitHub Actions를 통한 자동 배포 파이프라인 구축 완료 (Continuous Integration)
-- [x] **Metrics**: Prometheus & Grafana를 활용한 서버 리소스 및 트래픽 시각화 환경 구축
-
-### Phase 5: Security & User Experience (🚧 In Progress)
-- [x] **OAuth2**: Google(✅), Kakao(✅) 소셜 로그인 연동 및 통합 JWT 발급 완료
-- [x] **RBAC**: Role-Based Access Control (Admin, User, Guest) 권한 체계 세분화 완료
-- [ ] **SSL/TLS**: Let's Encrypt를 활용한 HTTPS 적용 (Nginx Reverse Proxy)
-
-### Phase 6: Performance & Stability
+### Phase 6: Performance & Stability (🚧 In Progress)
 - [ ] **Rate Limiting**: Redis를 활용한 API 요청 제한 (Throttling)
 - [ ] **API Versioning**: `/v1`, `/v2` 등 유연한 API 버전 관리 전략 도입
-- [ ] **API Documentation**: Swagger UI 상세화 및 ReDoc 도입을 통한 기술 명세 고도화
-
----
-
-## 💡 Spring Boot vs FastAPI Comparison
-
-| Feature | Spring Boot (Java) | FastAPI (Python) |
-| :--- | :--- | :--- |
-| **API Framework** | Spring MVC | FastAPI |
-| **ORM** | JPA (Hibernate) | SQLAlchemy |
-| **DTO** | Lombok `@Data` | Pydantic `BaseModel` |
-| **Dependency Injection** | `@Autowired` / `@Bean` | `Depends()` |
-| **Validation** | Bean Validation (`@NotNull`) | Pydantic Field Types |
-| **Configuration** | `application.yml` | `pydantic-settings` |
-| **Pagination** | `org.springframework.data.domain.Page` | `PageResponse` (Custom) |
-| **Entry Point** | `public static void main` | `if __name__ == "__main__":` |
+- [ ] **API Documentation**: Swagger UI 상세화 및 ReDoc 도입
 
 ---
 
@@ -215,75 +137,20 @@ DB 스키마 변경 사항을 관리하기 위해 **Alembic**을 사용합니다
 
 ### 1. RBAC (Role-Based Access Control) Implementation
 엔터프라이즈 환경에서의 체계적인 권한 관리를 위해 RBAC 시스템을 구축했습니다.
-
-- **UserRole Enum**: `Enum` 클래스를 사용하여 역할(ADMIN, USER, GUEST)을 정의하고, DB 컬럼 타입으로 매핑하여 데이터 무결성을 확보했습니다.
-- **Declarative Guard (RoleChecker)**: FastAPI의 의존성 주입(DI) 시스템을 활용하여, 컨트롤러 계층에서 `dependencies=[Depends(admin_only)]`와 같이 선언적으로 권한을 제한할 수 있는 `RoleChecker` 클래스를 구현했습니다.
-- **Granular Access Control**: '내 정보 수정'은 본인만, '전체 유저 조회' 및 '강제 탈퇴'는 관리자만 가능하도록 API 레벨에서 세밀하게 권한을 분리했습니다.
+- **UserRole Enum**: `Enum` 클래스를 사용하여 역할을 정의하고 DB 컬럼과 매핑하여 무결성을 확보했습니다.
+- **Declarative Guard**: FastAPI의 DI 시스템을 활용하여 `RoleChecker` 클래스를 구현, 컨트롤러에서 선언적으로 권한을 제한합니다.
 
 ### 2. Social Login Strategy (OAuth2)
-Google 및 Kakao 소셜 로그인을 Spring Boot의 서비스 추상화 패턴을 벤치마킹하여 구현했습니다.
+- **Multi-Provider**: `GoogleAuthService`, `KakaoAuthService` 분리 구현으로 확장성을 확보했습니다.
+- **Unified JWT**: 어떤 소셜 제공자든 최종적으로는 서버의 자체 JWT를 발급하여 프론트엔드 관리를 일원화했습니다.
 
-- **Multi-Provider Support**: `GoogleAuthService`와 `KakaoAuthService`를 각각 분리 구현하여 확장성을 확보했습니다.
-- **Non-blocking Auth**: `httpx` 비동기 클라이언트를 사용하여 외부 API와의 통신을 Non-blocking으로 처리했습니다.
-- **Soft Registration**: 소셜 로그인 시 DB에 유저가 없으면 자동으로 신규 가입을 진행하고, 이미 존재하는 유저라면 정보를 연동하도록 설계했습니다.
-- **Unified JWT Issue**: 제공자에 관계없이 최종적으로 서버 자체 JWT를 발급하여 토큰 관리 로직을 통일했습니다.
+### 3. Repository Polymorphism & Safety
+- **Type Flexibility**: `create_user` 함수가 DTO와 Entity를 모두 처리할 수 있도록 다형성을 부여했습니다.
+- **Conditional Hashing**: 소셜 유저와 같이 비밀번호가 없는 경우를 분기 처리하여 런타임 에러를 방지했습니다.
 
-### 2. Repository Polymorphism & Safety
-다양한 유저 생성 케이스(일반 가입 DTO vs 소셜 Entity)를 안전하게 처리하기 위해 레포지토리 계층을 고도화했습니다.
-
-- **Type Flexibility**: `create_user` 함수가 `UserCreate` DTO와 `User` 모델 객체를 모두 수용할 수 있도록 다형성을 부여했습니다. (`isinstance` 활용)
-- **Conditional Hashing**: 소셜 유저와 같이 비밀번호가 없는(`None`) 경우를 분기 처리하여, 비밀번호가 존재할 때만 BCrypt 해싱이 수행되도록 방어 로직을 구축하여 런타임 에러를 방지했습니다.
-
-### 3. File Upload Strategy
-이미지 및 파일 업로드를 안전하고 효율적으로 처리하기 위해 다음과 같은 전략을 사용했습니다.
-
-- **UUID Filename**: 사용자가 업로드한 파일명 중복을 방지하고 보안(경로 탐색 공격 방지)을 위해 `UUID v4`를 사용하여 파일명을 난수화했습니다.
-- **Directory Isolation**: `static/uploads/profiles`와 `static/uploads/boards`로 디렉토리를 분리하여 관리 효율성을 높였습니다.
-- **Service Layer Abstraction**: `FileService` 클래스를 별도로 구현하여 파일 저장/삭제 로직을 비즈니스 로직과 분리, 재사용성을 확보했습니다. (SRP 원칙)
-- **Static Mounting**: FastAPI의 `StaticFiles`를 활용하여 별도의 웹 서버(Nginx 등) 없이도 개발 환경에서 즉시 이미지를 서빙할 수 있도록 구성했습니다.
-
-### 3. DB Migration with Alembic (Versioning)
-데이터베이스의 스키마 변경 이력을 코드 레벨에서 관리하기 위해 **Alembic**을 적극 활용했습니다.
-
-- **Alembic Versioning**: `alembic_version` 테이블을 통해 현재 DB 상태를 추적하며, 협업 및 배포 환경에서도 동일한 스키마를 유지할 수 있도록 구축했습니다.
-- **Workflow**: 모델 수정 시 마이그레이션 파일 생성(`revision --autogenerate`) 및 반영(`upgrade head`) 프로세스를 정립했습니다.
-- **Problem & Solution**: 모델(`models.py`) 수정 후 수동으로 DB를 건드려야 하는 위험성을 제거하고, 버전 관리(Versioning)가 가능하도록 자동화했습니다.
-
-### 3. Asynchronous I/O (Async/Await)
-고성능 처리를 위해 데이터베이스 접근 방식을 **동기(Sync)**에서 **비동기(Async)**로 전면 전환했습니다.
-
-- **Driver**: `pymysql` 대신 비동기를 지원하는 `aiomysql` 드라이버를 사용했습니다.
-- **SQLAlchemy 2.0**: `AsyncSession`과 `select()` 구문을 활용하여 Non-blocking DB IO를 구현했습니다.
-- **Benefit**: I/O 대기 시간 동안 다른 요청을 처리할 수 있어, 동시 접속자가 많을 때 스루풋(Throughput)이 대폭 향상됩니다.
-
-### 4. Redis Caching & Session Management
-데이터 조회 성능 최적화와 보안 강화를 위해 **Redis**를 도입했습니다.
-
-- **Look-Aside Caching**: 게시글 목록 조회(`get_boards_list`) 시 Redis 캐시를 먼저 확인하고, 없을 경우 DB에서 조회하여 적재(TTL 60초)하는 전략을 사용했습니다.
-- **Session Control`:
-  - JWT는 Stateless 특성상 강제 로그아웃이 어렵다는 단점이 있습니다.
-  - 이를 보완하기 위해 로그인 시 `Refresh Token`과 유사한 개념으로 Redis에 세션 정보를 저장하고, 요청 시마다 유효성을 검증합니다.
-  - 이를 통해 **중복 로그인 방지** 및 **즉시 로그아웃** 기능을 구현했습니다.
-
-### 5. Distributed Task Queue (Celery & Redis)
-응답 속도 개선과 시스템 안정성을 위해 시간이 오래 걸리는 작업은 **Celery**를 통해 비동기로 처리합니다.
-
-- **Non-blocking Email**: 회원가입 환영 메일 발송과 같이 외부 API 연동이 필요한 작업을 백그라운드 태스크로 분리하여 사용자 응답 속도를 극대화했습니다. (평균 응답 속도 50ms 미만 유지)
-- **Broker & Backend**: 가볍고 빠른 처리를 위해 **Redis**를 메시지 브로커 및 결과 저장소로 활용합니다.
-- **Worker Scalability**: 컨테이너화를 통해 트래픽 증가 시 워커 인스턴스만 개별적으로 스케일 아웃할 수 있는 구조를 설계했습니다.
-
-### 6. Configuration & Security Strategy
-민감한 정보 관리와 유연한 환경 설정을 위해 다음과 같은 전략을 사용했습니다.
-
-- **Pydantic Settings**: `.env` 파일을 활용하여 DB 접속 정보, Secret Key, SMTP 설정 등을 코드와 분리했습니다. 타입 힌트를 통해 런타임 시 환경 변수 유효성을 검증합니다.
-- **SMTP with TLS**: Gmail SMTP를 연동할 때 보안 강화를 위해 `STARTTLS` 방식을 적용하고, 앱 비밀번호(App Password)를 활용하여 계정 보안을 유지했습니다.
-- **Git Security**: `.gitignore` 및 `.git/info/exclude`를 활용하여 실 서버의 민감 정보가 포함된 `.env` 파일과 로컬 전용 설정 파일(`GEMINI.md`)이 저장소에 노출되지 않도록 철저히 관리했습니다.
-
-### 7. Containerization (Docker)
-어디서나 동일한 환경에서 실행 가능하도록 **Infrastructure as Code (IaC)** 환경을 구축했습니다.
-
-- **Multi-container setup**: `docker-compose`를 통해 FastAPI App, MariaDB, Redis, Celery Worker를 하나의 명령어로 통합 관리합니다.
-- **Optimized Image**: `python:3.10-slim` 베이스 이미지를 사용하여 컨테이너 크기를 최소화하고 빌드 속도를 개선했습니다.
+### 4. Local Infrastructure with Nginx (Reverse Proxy)
+- **Unified API Gateway**: Nginx를 리버스 프록시로 세워 모든 요청을 80번 포트에서 통합 관리합니다.
+- **Port Management**: Grafana(4000) 등 각 서비스의 포트를 조정하여 접근성을 개선했습니다.
 
 ---
 
@@ -292,58 +159,51 @@ Google 및 Kakao 소셜 로그인을 Spring Boot의 서비스 추상화 패턴�
 개발 과정에서 발생한 기술적 문제들과 이를 해결한 과정을 기록합니다.
 
 ### 1. Bcrypt & Passlib Compatibility Issue
-- **Issue**: `AttributeError: module 'bcrypt' has no attribute '__about__'` 발생.
-- **Cause**: 최신 버전의 `bcrypt` 라이브러리에서 `passlib`이 참조하던 내부 속성이 변경/제거됨.
-- **Solution**: `bcrypt` 버전을 호환 가능한 `4.0.1`로 하향 조정하여 해결.
+- **Issue**: `bcrypt` 최신 버전에서 `passlib` 내부 속성 변경으로 인한 에러.
+- **Solution**: `bcrypt` 버전을 `4.0.1`로 하향 조정하여 호환성 확보.
 
 ### 2. Static Files Directory Error
 - **Issue**: `RuntimeError: Directory 'static' does not exist` 발생.
-- **Cause**: 실행 환경(CWD)에 따라 상대 경로가 달라져서 발생하는 문제. 특히 IntelliJ에서 직접 실행 시 경로 인식이 꼬임.
-- **Solution**: `config.py`에서 `BASE_DIR`을 기반으로 한 **절대 경로**를 생성하고, `app.mount()` 시 이를 사용하도록 수정하여 실행 환경 독립성 확보.
+- **Cause**: 실행 환경(CWD)에 따라 상대 경로가 달라져서 발생하는 문제.
+- **Solution**: `config.py`에서 `BASE_DIR`을 기반으로 한 절대 경로를 생성하여 실행 환경 독립성 확보.
 
 ### 3. Celery Unregistered Task Error
 - **Issue**: `Received unregistered task of type 'app.tasks.email_task.send_welcome_email'` 발생.
-- **Cause**: Celery 워커가 실행될 때 비동기 태스크가 정의된 모듈을 로드하지 못함.
-- **Solution**: `Celery` 인스턴스 생성 시 `include=["app.tasks.email_task"]` 옵션을 추가하여 명시적으로 태스크 모듈을 등록.
+- **Cause**: Celery 워커 실행 시 비동기 태스크가 정의된 모듈을 로드하지 못함.
+- **Solution**: `Celery` 인스턴스 생성 시 `include` 옵션으로 태스크 모듈을 명시적으로 등록하여 해결.
 
 ### 4. Pydantic Response Validation Error
 - **Issue**: API 응답 시 `ResponseValidationError` 발생.
-- **Cause**: 응답 DTO(Pydantic)에는 필드가 정의되어 있으나, 실제 DB 모델(SQLAlchemy)에는 해당 컬럼이 없거나 이름이 다름. (예: `id` vs `email`)
-- **Solution**: DB PK 전략(Email PK)에 맞춰 DTO 필드를 조정하고, `model_config = ConfigDict(from_attributes=True)` 설정을 통해 엔티티 변환 정합성 확보.
+- **Cause**: 응답 DTO 필드와 실제 DB 모델 컬럼명 불일치.
+- **Solution**: DB PK 전략에 맞춰 DTO 필드를 조정하고 `from_attributes=True` 설정을 통해 정합성 확보.
 
 ### 5. GitHub Actions CI Failure (Pytest not found)
 - **Issue**: CI 환경에서 `pytest` 명령어를 찾지 못해 빌드 실패.
-- **Cause**: `pip install` 후 실행 경로(`PATH`) 설정 문제로 인해 전역 명령어로 인식되지 않음.
 - **Solution**: `python -m pytest` 형식을 사용하여 현재 파이썬 환경의 모듈로 실행하도록 워크플로우 수정.
 
 ### 6. Docker Tag Case Sensitivity Error (CD)
 - **Issue**: `invalid tag "...": repository name must be lowercase` 발생.
-- **Cause**: GitHub 계정명(`Yeonghoon-mo`)에 대문자가 포함되어 있으나, 도커 이미지 태그는 반드시 소문자여야 함.
-- **Solution**: GitHub Actions 워크플로우에서 계정명을 소문자로 변환하는 전처리 단계(`${OWNER,,}`)를 추가하여 해결.
+- **Cause**: GitHub 계정명에 대문자가 포함되어 있으나 도커 이미지 태그는 소문자여야 함.
+- **Solution**: 워크플로우에서 계정명을 소문자로 변환하는 전처리 단계(`${OWNER,,}`) 추가.
 
-### 8. GitHub Actions CI Failure (Static Directory Missing)
-- **Issue**: `RuntimeError: Directory '/.../app/static' does not exist` 발생.
-- **Cause**: Git은 빈 디렉토리를 추적하지 않으므로, CI 환경(Ubuntu)에서 앱 실행 시 마운트할 `static` 디렉토리가 존재하지 않음.
-- **Solution**: `app/main.py` 코드 내에서 `StaticFiles`를 마운트하기 직전에 해당 디렉토리가 없으면 자동으로 생성하는 방어 로직 추가.
+### 7. GitHub Actions CI Failure (Static Directory Missing)
+- **Issue**: Git에서 빈 디렉토리를 추적하지 않아 CI 환경에 `static` 폴더가 없음.
+- **Solution**: `app/main.py` 코드 내에서 마운트 전 디렉토리 존재 여부를 체크하고 자동 생성하는 로직 추가.
 
-### 9. Docker CD Success but Container Not Updated
-- **Issue**: CD 워크플로우는 성공(Green)으로 표시되지만, 실제 서버의 도커 컨테이너는 기존 버전을 유지함.
-- **Cause**: 현재 CD 설정이 이미지를 빌드하여 GHCR에 **Push**하는 단계까지만 구현되어 있음. 서버에서 새 이미지를 **Pull** 받고 컨테이너를 **Restart**하는 배포(Deployment) 로직이 주석 처리되어 있거나 Secret 미설정으로 작동하지 않음.
-- **Solution**: `cd.yml` 내 배포 섹션(SSH 연동 등)을 활성화하고, GitHub Repository Secrets에 서버 접속 정보(`SERVER_HOST`, `SSH_PRIVATE_KEY` 등)를 등록하여 자동 배포를 완성해야 함.
+### 8. Docker CD Success but Container Not Updated
+- **Issue**: 이미지 빌드 및 Push만 구현되어 서버 배포가 이루어지지 않음.
+- **Solution**: `cd.yml` 내 배포 섹션을 활성화하고 SSH 연동을 통해 자동 배포 프로세스 완성.
 
-### 10. OAuth2 Callback 404 Not Found
-- **Issue**: Google 로그인 성공 후 콜백 URI 접속 시 `{"detail":"Not Found"}` 에러 발생.
-- **Cause**: Google Console에 등록된 리다이렉트 URI와 FastAPI 라우터에 등록된 주소 체계가 불일치함.
-- **Solution**: `main.py`에서 라우터 등록 시 `prefix="/api"`를 일괄 적용하여 모든 API 주소를 `/api` 하위로 통일하고, Google Console 설정을 이에 맞춰 수정하여 해결했습니다.
+### 9. OAuth2 Callback 404 Not Found
+- **Issue**: Google 로그인 성공 후 콜백 URI 접속 시 404 에러 발생.
+- **Solution**: `main.py`에서 `prefix="/api"`를 일괄 적용하여 모든 API 주소 체계를 통일했습니다.
 
-### 11. Swagger UI Token Input Convenience
-- **Issue**: `OAuth2PasswordBearer` 사용 시 Swagger 상단 'Authorize' 버튼에서 ID/PW를 매번 입력해야 하는 번거로움 발생. 소셜 로그인으로 받은 토큰을 직접 테스트하기 불편함.
-- **Solution**: `HTTPBearer` 보안 스키마로 전환하여 Swagger에서 'Value' 칸 하나만 나타나게 수정, 복사한 JWT를 즉시 붙여넣어 테스트할 수 있는 환경을 구축했습니다.
+### 10. Swagger UI Token Input Convenience
+- **Solution**: `HTTPBearer` 스키마로 전환하여 Swagger에서 토큰만 즉시 입력 가능하도록 개선했습니다.
 
-### 12. TypeError in Social User Registration
-- **Issue**: 소셜 로그인 유저 가입 시 `TypeError: secret must be unicode or bytes, not None` 발생.
-- **Cause**: 레포지토리의 `create_user` 함수가 소셜 유저의 `None` 비밀번호를 강제로 해싱하려 시도함.
-- **Solution**: 레포지토리 로직에 타입 체크 및 조건부 해싱을 도입하여, 비밀번호가 있을 때만 해싱을 수행하고 이미 생성된 모델 객체도 처리 가능하도록 개선하여 해결했습니다.
+### 11. TypeError in Social User Registration
+- **Issue**: 소셜 유저의 `None` 비밀번호 해싱 시도 중 발생한 에러.
+- **Solution**: 레포지토리에 타입 체크 및 조건부 해싱을 도입하여 해결했습니다.
 
 ---
 
