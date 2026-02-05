@@ -127,8 +127,8 @@ app/
 - [x] **Reverse Proxy**: Nginx를 활용한 리버스 프록시 구축 및 로컬 인프라 통합 완료
 
 ### Phase 6: Performance & Stability (🚧 In Progress)
-- [ ] **Rate Limiting**: Redis를 활용한 API 요청 제한 (Throttling)
-- [ ] **API Versioning**: `/v1`, `/v2` 등 유연한 API 버전 관리 전략 도입
+- [x] **Rate Limiting**: Redis를 활용한 API 요청 제한 (Throttling)
+- [x] **API Versioning**: `/v1`, `/v2` 등 유연한 API 버전 관리 전략 도입
 - [ ] **API Documentation**: Swagger UI 상세화 및 ReDoc 도입
 
 ---
