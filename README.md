@@ -126,10 +126,10 @@ app/
 - [x] **RBAC**: Role-Based Access Control (Admin, User, Guest) 권한 체계 구축 완료
 - [x] **Reverse Proxy**: Nginx를 활용한 리버스 프록시 구축 및 로컬 인프라 통합 완료
 
-### Phase 6: Performance & Stability (🚧 In Progress)
+### Phase 6: Performance & Stability (✅ Completed)
 - [x] **Rate Limiting**: Redis를 활용한 API 요청 제한 (Throttling)
 - [x] **API Versioning**: `/v1`, `/v2` 등 유연한 API 버전 관리 전략 도입
-- [ ] **API Documentation**: Swagger UI 상세화 및 ReDoc 도입
+- [x] **API Documentation**: Swagger UI 상세화 및 ReDoc 도입
 
 ---
 
