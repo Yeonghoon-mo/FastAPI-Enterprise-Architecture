@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -14,6 +14,7 @@ security = HTTPBearer()
 
 # [보안 의존성] 현재 로그인한 유저 가져오기
 async def get_current_user(
+    request: Request,
     auth: HTTPAuthorizationCredentials = Depends(security), 
     db: AsyncSession = Depends(get_db)
 ) -> User:
@@ -47,6 +48,9 @@ async def get_current_user(
     user = await user_repository.get_user(db, email=email)
     if user is None:
         raise credentials_exception
+        
+    # [추가] request.state에 유저 정보 저장 (RateLimiter 등에서 활용)
+    request.state.user = user
         
     return user
 
